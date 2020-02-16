@@ -6,6 +6,7 @@ function Box(props) {
     return (
         <button className="box"
                 onClick={props.onClick}
+                style={ {backgroundColor: props.color} }
         >
             {props.value}
         </button>
@@ -18,49 +19,66 @@ class Board extends React.Component {
         super(props);
         // maintain state of board component
         this.state = {
-            // boxValues: Array(16).fill(null),
             boxValues: randomCharacterGenerator(16),
+            color: Array(16).fill('white'),
             isFirstSelection: true,
             selectedWord: '',
+            isIndexSelected: Array(16).fill(false),
             lastSelectionIndex: null,
         };
     }
 
     handleClick(i) {
+        console.log('------------------------')
+        console.log('selected index: '+i)
+        console.log('selected index array value: '+this.state.isIndexSelected[i])
+        // change the color of clicked box to red and text to white
+        let tempBoxColor = this.state.color.slice()
         let tempBoxValues = this.state.boxValues.slice()
-        let tempIsFirstSelection
-        let tempLastSelectionIndex
+        let tempIsFirstSelection = this.state.isFirstSelection
+        let tempLastSelectionIndex = this.state.lastSelectionIndex
         let tempSelectedWord = this.state.selectedWord
-        if (this.state.isFirstSelection) {
+        let tempIsIndexSelected = this.state.isIndexSelected.slice()
+        console.log('index selection value: '+tempIsIndexSelected[i])
+        if (tempIsFirstSelection) {
             console.log('It is first selection')
+            tempBoxColor[i] = 'red'
             tempIsFirstSelection = false
-            tempSelectedWord += this.state.boxValues[i]
+            tempSelectedWord += tempBoxValues[i]
             tempLastSelectionIndex = i
+            tempIsIndexSelected[i] = true
         } else {
             // check if selection is valid
-            if (isSelectionValid(this.state.lastSelectionIndex, i)){
-                console.log('selection is valid')
-                tempSelectedWord += this.state.boxValues[i]
-                tempLastSelectionIndex = i
+            // first check if this box has been already selected or not, if it's already selected, then selection is invalid
+            if (!tempIsIndexSelected[i]) {
+                // now check if selection is neighbour of previous selection using function isSelectionValid
+                if (isSelectionValid(tempLastSelectionIndex, i)) {
+                    console.log('selection is valid')
+                    tempBoxColor[i] = 'red'
+                    tempSelectedWord += tempBoxValues[i]
+                    tempLastSelectionIndex = i
+                    tempIsIndexSelected[i] = true
+                }
+                else {
+                    console.log('selection is not valid since this box is not neighbouring to previous selection')
+                }
             }
             else {
-                console.log('selection is not valid')
+                console.log('selection is not valid since this box has already been selected')
             }
         }
-        console.log('------before-----')
-        console.log('selected word is:')
-        console.log(this.state.selectedWord)
-        console.log('-----------------')
+        // set the new state according to previous calculations
         this.setState({
             boxValues: tempBoxValues,
+            color: tempBoxColor,
             isFirstSelection: tempIsFirstSelection,
             selectedWord: tempSelectedWord,
+            isIndexSelected: tempIsIndexSelected,
             lastSelectionIndex: tempLastSelectionIndex,
         });
-        console.log('------after-----')
-        console.log('selected word is:')
-        console.log(this.state.selectedWord)
-        console.log('-----------------')
+        // console.log(this.state)
+        console.log('-------------------------')
+
     }
 
     renderBox(i) {
@@ -68,6 +86,7 @@ class Board extends React.Component {
             <Box
                 value={this.state.boxValues[i]}
                 onClick={() => this.handleClick(i)}
+                color={this.state.color[i]}
             />
         );
     }
@@ -102,21 +121,24 @@ class Board extends React.Component {
                     {this.renderBox(14)}
                     {this.renderBox(15)}
                 </div>
+                <div className="entered-word">
+                    <p>Entered Word:  {this.state.selectedWord}</p>
+                </div>
                 <div className="reset">
-                    <p>Click this botton to reset game</p>
+                    <p>           </p>
+                    <p>Click this botton to reset game: </p>
                     <button
                         onClick={() => {
                             this.setState({
-                                // boxValues: Array(16).fill(null),
                                 boxValues: randomCharacterGenerator(16),
+                                color: Array(16).fill('white'),
                                 isFirstSelection: true,
                                 selectedWord: '',
+                                isIndexSelected: Array(16).fill(false),
                                 lastSelectionIndex: null,
                             });
                         }}
-                    >
-                        RESET
-                    </button>
+                    >RESET</button>
                 </div>
             </div>
         );
@@ -149,8 +171,8 @@ function isSelectionValid(lastSelectionIndex, currentSelection) {
         8  9  10 11
         12 13 14 15
     ]*/
-    if (Math.abs(lastSelectionIndex-currentSelection) in [1,4,3,5]) {
-        return true
-    }
-    return false
+    let matchArray = [1,4,3,5];
+    let compareValue = Math.abs(lastSelectionIndex-currentSelection)
+    console.log('Selection validity from function: '+ matchArray.includes(compareValue).toString())
+    return matchArray.includes(compareValue)
 }

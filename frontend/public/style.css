@@ -19,6 +19,7 @@ ol, ul {
 
 .box {
     background: #fff;
+    /*color: red;*/
     border: 1px solid #999;
     float: left;
     font-size: 24px;
