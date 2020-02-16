@@ -1,5 +1,6 @@
 import React from "react";
 import {randomCharacterGenerator} from "../utils/randomCharaterGenerator"
+import isWordValid from "../models/score.model"
 
 // function based component for each box with class name box
 function Box(props) {
@@ -11,6 +12,14 @@ function Box(props) {
             {props.value}
         </button>
     );
+}
+
+function Info(props) {
+    return (
+        <p className="info">
+            {props.message}
+        </p>
+    )
 }
 
 // class based component for whole 4X4 board which controls box component
@@ -25,10 +34,11 @@ class Board extends React.Component {
             selectedWord: '',
             isIndexSelected: Array(16).fill(false),
             lastSelectionIndex: null,
+            userInfo: null,
         };
     }
 
-    handleClick(i) {
+    handleBoxClick(i) {
         console.log('------------------------')
         console.log('selected index: '+i)
         console.log('selected index array value: '+this.state.isIndexSelected[i])
@@ -85,10 +95,37 @@ class Board extends React.Component {
         return (
             <Box
                 value={this.state.boxValues[i]}
-                onClick={() => this.handleClick(i)}
+                onClick={() => this.handleBoxClick(i)}
                 color={this.state.color[i]}
             />
         );
+    }
+
+    // function to reset board, to be more specific reset the state value of board component
+    resetBoard(changeBoxValue=false, infoMessage=''){
+        let newStateVal = {
+            color: Array(16).fill('white'),
+            isFirstSelection: true,
+            selectedWord: '',
+            isIndexSelected: Array(16).fill(false),
+            lastSelectionIndex: null,
+            userInfo: infoMessage,
+        }
+        if (!changeBoxValue) {
+            this.setState(newStateVal);
+        }
+        else {
+            newStateVal.boxValues = randomCharacterGenerator(16)
+            this.setState(newStateVal);
+        }
+    }
+
+    infoToUser(msg) {
+        return (
+            <Info
+                message = {msg}
+            />
+        )
     }
 
     render() {
@@ -122,22 +159,24 @@ class Board extends React.Component {
                     {this.renderBox(15)}
                 </div>
                 <div className="entered-word">
-                    <p>Entered Word:  {this.state.selectedWord}</p>
+                    <p>Selected Word:  {this.state.selectedWord}</p>
+                </div>
+                <div className="submit-button">
+                    <button onClick={ async () => {
+                        let isSelectedWordValid = await isWordValid(this.state.selectedWord)
+                        if (isSelectedWordValid) {
+                            this.resetBoard(false, 'Word is valid')
+                        }
+                        else {
+                            this.resetBoard(false, 'Word is invalid')
+                        }
+                        this.resetBoard()
+                    }}>SUBMIT</button>
+                    <Info message={this.state.userInfo} />
                 </div>
                 <div className="reset">
-                    <p>           </p>
                     <p>Click this botton to reset game: </p>
-                    <button
-                        onClick={() => {
-                            this.setState({
-                                boxValues: randomCharacterGenerator(16),
-                                color: Array(16).fill('white'),
-                                isFirstSelection: true,
-                                selectedWord: '',
-                                isIndexSelected: Array(16).fill(false),
-                                lastSelectionIndex: null,
-                            });
-                        }}
+                    <button onClick={()=>{this.resetBoard(true)}}
                     >RESET</button>
                 </div>
             </div>
@@ -170,9 +209,16 @@ function isSelectionValid(lastSelectionIndex, currentSelection) {
         4  5  6  7
         8  9  10 11
         12 13 14 15
-    ]*/
-    let matchArray = [1,4,3,5];
+    ]
+    */
+    // first filter out terminal matching element. i.e. [0,4,8,12] and [3,7,11,15]
+    let firstTerminalArray = [0,4,8,12]
+    let secondTerminalArray = [3,7,11,15]
+    if ((firstTerminalArray.includes(lastSelectionIndex) && secondTerminalArray.includes(currentSelection)) || (firstTerminalArray.includes(currentSelection) && secondTerminalArray.includes(lastSelectionIndex))){
+        return false
+    }
+    // now proceed for further checking
+    let matchArray = [1,4,3,5]
     let compareValue = Math.abs(lastSelectionIndex-currentSelection)
-    console.log('Selection validity from function: '+ matchArray.includes(compareValue).toString())
     return matchArray.includes(compareValue)
 }

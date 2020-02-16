@@ -1,5 +1,5 @@
-let randomWords = require('random-words');
-// import * as randomWords from 'random-words';
+// let randomWords = require('random-words');
+// import randomWords from 'random-words';
 // function to generate array of random characters of given length
 function randomCharacterGenerator(length) {
     let result           = [];
@@ -12,7 +12,6 @@ function randomCharacterGenerator(length) {
     return result;
 }
 
-console.log(randomWords({exactly: 5, maxLength: 5}))
-module.exports = {
-    randomCharacterGenerator: randomCharacterGenerator
-}
+// console.log(randomWords({exactly: 5, maxLength: 5}))
+
+export {randomCharacterGenerator}
