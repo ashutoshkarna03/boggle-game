@@ -1,6 +1,10 @@
 import axios from 'axios'
 
 export default async function isWordValid(word) {
+    // skip api call to dictionary if the word passed is empty
+    if (word.length === 0) {
+        return false
+    }
     let url = 'https://dictionaryapi.com/api/v3/references/collegiate/json/'+word+'?key=09fb0fc9-618d-4c2c-a04a-81417adbd811'
     try {
         const response = await axios.get(url)

@@ -34,7 +34,7 @@ class Board extends React.Component {
             selectedWord: '',
             isIndexSelected: Array(16).fill(false),
             lastSelectionIndex: null,
-            userInfo: null,
+            wordStatus: null,
         };
     }
 
@@ -49,6 +49,7 @@ class Board extends React.Component {
         let tempLastSelectionIndex = this.state.lastSelectionIndex
         let tempSelectedWord = this.state.selectedWord
         let tempIsIndexSelected = this.state.isIndexSelected.slice()
+        let tempWordStatus = null
         console.log('index selection value: '+tempIsIndexSelected[i])
         if (tempIsFirstSelection) {
             console.log('It is first selection')
@@ -85,6 +86,7 @@ class Board extends React.Component {
             selectedWord: tempSelectedWord,
             isIndexSelected: tempIsIndexSelected,
             lastSelectionIndex: tempLastSelectionIndex,
+            wordStatus: tempWordStatus
         });
         // console.log(this.state)
         console.log('-------------------------')
@@ -102,16 +104,17 @@ class Board extends React.Component {
     }
 
     // function to reset board, to be more specific reset the state value of board component
-    resetBoard(changeBoxValue=false, infoMessage=null){
+    resetBoard(changeBoxValue, wordStatusStr){
         let newStateVal = {
             color: Array(16).fill('white'),
             isFirstSelection: true,
             selectedWord: '',
             isIndexSelected: Array(16).fill(false),
             lastSelectionIndex: null,
-            userInfo: infoMessage,
+            wordStatus: null,
         }
         if (!changeBoxValue) {
+            newStateVal.wordStatus = wordStatusStr
             this.setState(newStateVal);
         }
         else {
@@ -120,13 +123,6 @@ class Board extends React.Component {
         }
     }
 
-    infoToUser(msg) {
-        return (
-            <Info
-                message = {msg}
-            />
-        )
-    }
 
     render() {
         let status = null;
@@ -162,21 +158,26 @@ class Board extends React.Component {
                     <p>Selected Word:  {this.state.selectedWord}</p>
                 </div>
                 <div className="submit-button">
-                    <button onClick={ async () => {
-                        let isSelectedWordValid = await isWordValid(this.state.selectedWord)
-                        if (isSelectedWordValid) {
-                            this.resetBoard(false, 'Word is valid')
+                    <button onClick={
+                            async () => {
+                            let isSelectedWordValid = await isWordValid(this.state.selectedWord)
+                            if (isSelectedWordValid) {
+                                console.log('Word is valid')
+                                this.resetBoard(false, 'Word is valid')
+                            }
+                            else {
+                                console.log('Word is invalid')
+                                this.resetBoard(false, 'Word is invalid')
+                            }
                         }
-                        else {
-                            this.resetBoard(false, 'Word is invalid')
-                        }
-                        this.resetBoard()
-                    }}>SUBMIT</button>
-                    <Info message={this.state.selectedWord} />
+                    }>SUBMIT</button>
+                </div>
+                <div className='word-status'>
+                    <p>{this.state.wordStatus}</p>
                 </div>
                 <div className="reset">
                     <p>Click this botton to reset game: </p>
-                    <button onClick={()=>{this.resetBoard(true)}}
+                    <button onClick={()=>{this.resetBoard(true, null)}}
                     >RESET</button>
                 </div>
             </div>
