@@ -102,7 +102,7 @@ class Board extends React.Component {
     }
 
     // function to reset board, to be more specific reset the state value of board component
-    resetBoard(changeBoxValue=false, infoMessage=''){
+    resetBoard(changeBoxValue=false, infoMessage=null){
         let newStateVal = {
             color: Array(16).fill('white'),
             isFirstSelection: true,
@@ -172,7 +172,7 @@ class Board extends React.Component {
                         }
                         this.resetBoard()
                     }}>SUBMIT</button>
-                    <Info message={this.state.userInfo} />
+                    <Info message={this.state.selectedWord} />
                 </div>
                 <div className="reset">
                     <p>Click this botton to reset game: </p>
